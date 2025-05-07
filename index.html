@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manicura Elegante</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Estilos generales */
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        .servicios-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 1000px;
+        }
+        .servicio {
+            border: 2px solid #ff69b4;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            width: 250px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .servicio img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #ff69b4;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #ff1493;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+            text-align: center;
+            z-index: 1000;
+            cursor: move;
+        }
+        #formulario-turno {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        #formulario-turno label {
+            font-weight: bold;
+        }
+        #formulario-turno input {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        /* Estilos del menú lateral */
+        .menu {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px 0 0 10px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .menu button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .menu button:hover {
+            background-color: #ff1493;
+        }
+        /* Estilos de las pestañas */
+        .contenido-pestaña {
+            display: none;
+            position: fixed;
+            top: 50%;
+            right: 100px;
+            transform: translateY(-50%);
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 200px;
+            z-index: 999;
+        }
+        .contenido-pestaña.activo {
+            display: block;
+        }
+        .cerrar-pestana {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            background-color: red;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+        }
+        .cerrar-pestana:hover {
+            background-color: darkred;
+        }
+        /* Estilos del carrito */
+        .carrito {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .carrito h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .carrito ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+        .carrito li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .carrito .total {
+            font-weight: bold;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bienvenido a Manicura Elegante</h1>
+    <div class="servicios-container">
+        <div class="servicio">
+            <img src="manicura1.jpg" alt="Manicura Básica">
+            <h2>Manicura Básica</h2>
+            <p>Precio: $7000.00</p>
+            <button onclick="agregarAlCarrito('Manicura Básica', 7000)">Agregar al Carrito</button>
+        </div>
+        <div class="servicio">
+            <img src="manicura2.jpg" alt="Manicura Francesa">
+            <h2>Manicura Francesa</h2>
+            <p>Precio: $8000.00</p>
+            <button onclick="agregarAlCarrito('Manicura Francesa', 8000)">Agregar al Carrito</button>
+        </div>
+        <div class="servicio">
+            <img src="manicura3.jpg" alt="Manicura con Diseños">
+            <h2>Manicura con Diseños</h2>
+            <p>Precio: $9000.00</p>
+            <button onclick="agregarAlCarrito('Manicura con Diseños', 9000)">Agregar al Carrito</button>
+        </div>
+    </div>
+
+    <!-- Carrito -->
+    <div class="carrito">
+        <h3>Carrito</h3>
+        <ul id="lista-carrito"></ul>
+        <div class="total">Total: $<span id="total-carrito">0.00</span></div>
+        <button onclick="mostrarModal()">Reservar Turno</button>
+    </div>
+
+    <!-- Menú lateral -->
+    <div class="menu">
+        <button onclick="mostrarPestana('contacto')">Contacto</button>
+        <button onclick="mostrarPestana('quien-soy')">Quién soy</button>
+        <button onclick="mostrarPestana('ventas')">Servicios</button>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div id="contacto" class="contenido-pestaña">
+        <span class="cerrar-pestana" onclick="cerrarPestana('contacto')">×</span>
+        <h3>Contacto</h3>
+        <p>Celular: 3751-371374</p>
+    </div>
+    <div id="quien-soy" class="contenido-pestaña">
+        <span class="cerrar-pestana" onclick="cerrarPestana('quien-soy')">×</span>
+        <h3>Quién soy</h3>
+        <p>Manicura Elegante. Servicios de manicura profesional con los mejores productos y diseños.</p>
+    </div>
+    <div id="ventas" class="contenido-pestaña">
+        <span class="cerrar-pestana" onclick="cerrarPestana('ventas')">×</span>
+        <h3>Servicios</h3>
+        <p>Ofrezco una variedad de servicios de manicura para que tus uñas luzcan espectaculares.</p>
+    </div>
+
+    <!-- Modal del turno -->
+    <div id="modal-turno" class="modal">
+        <h2>Reservar Turno</h2>
+        <form id="formulario-turno">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" required>
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" required>
+            <label for="fecha">Fecha del turno:</label>
+            <input type="date" id="fecha" required>
+            <label for="horario">Horario del turno:</label>
+            <input type="time" id="horario" required>
+        </form>
+        <button onclick="generarPDF()">Generar Turno</button>
+        <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+
+    <script>
+        let carrito = [];
+
+        // Función para agregar un servicio al carrito
+        function agregarAlCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            actualizarCarrito();
+        }
+
+        // Función para actualizar el carrito
+        function actualizarCarrito() {
+            const listaCarrito = document.getElementById('lista-carrito');
+            const totalCarrito = document.getElementById('total-carrito');
+            listaCarrito.innerHTML = '';
+
+            let total = 0;
+            carrito.forEach(servicio => {
+                const li = document.createElement('li');
+                li.textContent = `${servicio.nombre} - $${servicio.precio.toFixed(2)}`;
+                listaCarrito.appendChild(li);
+                total += servicio.precio;
+            });
+
+            // Mostrar el total
+            totalCarrito.textContent = total.toFixed(2);
+        }
+
+        // Función para mostrar el modal
+        function mostrarModal() {
+            if (carrito.length > 0) {
+                document.getElementById('modal-turno').style.display = 'block';
+            } else {
+                alert('Por favor, agrega al menos un servicio al carrito.');
+            }
+        }
+
+        // Función para cerrar el modal y vaciar el carrito
+        function cerrarModal() {
+            // Vaciar el carrito
+            carrito = [];
+            actualizarCarrito();
+
+            // Ocultar el modal
+            document.getElementById('modal-turno').style.display = 'none';
+        }
+
+        // Función para generar el PDF
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Datos del turno
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const fecha = document.getElementById('fecha').value;
+            const horario = document.getElementById('horario').value;
+
+            // Formatear la fecha a DD/MM/YYYY
+            const fechaFormateada = fecha.split('-').reverse().join('/');
+
+            // Logo de la tienda
+            const img = new Image();
+            img.src = "manicura3.jpg";
+            doc.addImage(img, 'JPEG', 80, 10, 50, 50);
+
+            // Título
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(30);
+            doc.text("Manicura Elegante", 60, 70);
+            doc.setTextColor(255, 165, 0);
+            doc.setFontSize(14);
+            doc.text("Comprobante de Pago", 60, 80);
+
+            // Detalles del turno
+            doc.setFontSize(12);
+            doc.setTextColor(0);
+            doc.text(`Su Nombre es: ${nombre} ${apellido}`, 20, 90);
+
+            // Lista de servicios
+            let y = 100;
+            carrito.forEach(servicio => {
+                doc.text(`Servicio: ${servicio.nombre} - $${servicio.precio.toFixed(2)}`, 20, y);
+                y += 10;
+            });
+
+            // Precio total
+            const total = carrito.reduce((sum, servicio) => sum + servicio.precio, 0);
+            doc.text(`Precio Total: $${total.toFixed(2)}`, 20, y + 10);
+
+             // Fecha y horario
+            doc.text(`Fecha de Turno: ${fechaFormateada}`, 20, y + 20); // Usar la fecha formateada
+            doc.text(`Horario de Turno: ${horario} hs`, 20, y + 30);
+
+
+            // Logos de WhatsApp y Mercado Pago
+            const whatsappLogo = new Image();
+            whatsappLogo.src = "whatsapp.png"; // Ruta de la imagen del logo de WhatsApp
+            doc.addImage(whatsappLogo, 'PNG', 20, y + 40, 10, 10); // Ajusta la posición y tamaño del logo
+            doc.text("Contacto: 3751-371374", 35, y + 47); // Texto de contacto
+
+            const mercadoPagoLogo = new Image();
+            mercadoPagoLogo.src = "mercadoPago.png"; // Ruta de la imagen del logo de Mercado Pago
+            doc.addImage(mercadoPagoLogo, 'PNG', 20, y + 50, 10, 10); // Ajusta la posición y tamaño del logo
+            doc.text("Mercado Pago: Alias: lili.fer.tin", 35, y + 57); // Texto de Mercado Pago
+            doc.text("¡ Atención Cliente !: Confirmar su turno un día antes. Muchas Gracias....", 35, y + 80); // Texto de Mercado Pago
+
+            // Guardar PDF
+            doc.save("Comprobante de turno.pdf");
+            cerrarModal();
+        }
+
+        // Funciones para mostrar y cerrar pestañas
+        function mostrarPestana(pestana) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.contenido-pestaña').forEach(p => p.classList.remove('activo'));
+            // Mostrar la pestaña seleccionada
+            document.getElementById(pestana).classList.add('activo');
+        }
+
+        function cerrarPestana(pestana) {
+            document.getElementById(pestana).classList.remove('activo');
+        }
+
+        // Hacer el modal arrastrable
+        const modal = document.getElementById('modal-turno');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        modal.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - modal.getBoundingClientRect().left;
+            offsetY = e.clientY - modal.getBoundingClientRect().top;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                modal.style.left = `${e.clientX - offsetX}px`;
+                modal.style.top = `${e.clientY - offsetY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+
+    <div>
+        Diseñado por: Sebastian Gómez - Contacto: +543751316169
+    </div>
+</body>
+</html>
